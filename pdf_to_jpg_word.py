@@ -2,7 +2,7 @@ import fitz  # PyMuPDF
 from docx import Document
 from docx.shared import Inches
 import os
-from tkinter import Tk, filedialog, ttk, Button, StringVar, DISABLED, NORMAL
+from tkinter import Tk, filedialog, ttk, Button, StringVar, DISABLED, NORMAL, BooleanVar, Checkbutton
 from PIL import Image
 import io
 import pytesseract
@@ -10,14 +10,15 @@ import pytesseract
 # Configurar ruta a Tesseract si es necesario
 # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-def pdf_to_word(pdf_path, output_folder):
+def pdf_to_word(pdf_path, output_folder, use_ocr=False):
     """
     Convierte un archivo PDF a un documento Word manteniendo el texto y las imágenes.
-    Usa OCR si el texto no es legible.
+    Usa OCR si el texto no es legible y la opción está activada.
 
     Args:
         pdf_path (str): Ruta al archivo PDF.
         output_folder (str): Carpeta para guardar el archivo Word.
+        use_ocr (bool): Indica si debe usarse OCR en imágenes.
 
     Returns:
         None
@@ -32,8 +33,8 @@ def pdf_to_word(pdf_path, output_folder):
         text = page.get_text()
         images = page.get_images(full=True)
 
-        # Si no hay texto, usar OCR en la página
-        if not text.strip():
+        # Si no hay texto y está activado el OCR, procesar la página como imagen
+        if use_ocr and not text.strip():
             pix = page.get_pixmap()
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
             text = pytesseract.image_to_string(img)
@@ -96,10 +97,11 @@ def pdf_to_jpg(pdf_path, output_folder, dpi=300):
 if __name__ == "__main__":
     root = Tk()
     root.title("Conversor de PDF")
-    root.geometry("400x200")
+    root.geometry("400x250")
 
     file_path = StringVar()
     format_choice = StringVar(value="word")
+    use_ocr = BooleanVar(value=False)
 
     def select_file():
         file = filedialog.askopenfilename(title="Selecciona un archivo PDF", filetypes=[("Archivos PDF", "*.pdf")])
@@ -115,7 +117,7 @@ if __name__ == "__main__":
             os.makedirs(output_folder, exist_ok=True)
 
             if format_choice.get() == 'word':
-                pdf_to_word(pdf_path, output_folder)
+                pdf_to_word(pdf_path, output_folder, use_ocr.get())
             elif format_choice.get() == 'jpg':
                 pdf_to_jpg(pdf_path, output_folder)
 
@@ -124,6 +126,7 @@ if __name__ == "__main__":
     Button(root, text="Seleccionar Archivo PDF", command=select_file).pack(pady=10)
     ttk.Radiobutton(root, text="Word", variable=format_choice, value="word").pack()
     ttk.Radiobutton(root, text="JPG", variable=format_choice, value="jpg").pack()
+    Checkbutton(root, text="Usar OCR", variable=use_ocr).pack(pady=5)
     execute_button = Button(root, text="Ejecutar", command=execute_conversion, state=DISABLED)
     execute_button.pack(pady=20)
 
