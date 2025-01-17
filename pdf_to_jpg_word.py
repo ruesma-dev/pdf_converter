@@ -1,3 +1,5 @@
+# pdf_to_jpg_word.py
+
 import fitz  # PyMuPDF
 from docx import Document
 from docx.shared import Inches
