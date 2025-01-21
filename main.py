@@ -107,6 +107,10 @@ class AppUnificada(tk.Tk):
         # Botón ejecutar
         tk.Button(self, text="Ejecutar", command=self.execute_action, bg="green", fg="white", font=("Arial", 12)).pack(pady=20)
 
+        # Añadir el Label de Versión 1.1 en la parte inferior derecha
+        version_label = tk.Label(self, text="Versión 1.1", font=("Arial", 8))
+        version_label.pack(side='bottom', anchor='e', padx=10, pady=5)
+
         self.update_ui()
 
     def browse_input(self):
