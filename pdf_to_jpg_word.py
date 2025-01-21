@@ -39,7 +39,7 @@ def pdf_to_word(pdf_path, output_folder, use_ocr=False):
         if use_ocr and not text.strip():
             pix = page.get_pixmap()
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            text = pytesseract.image_to_string(img)
+            text = pytesseract.image_to_string(img, lang='spa')
 
         # Añadir texto al documento
         if text.strip():

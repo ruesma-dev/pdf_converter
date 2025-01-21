@@ -1,6 +1,7 @@
 # main.py
 
 import os
+import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from image_to_pdf import images_to_pdf
@@ -20,7 +21,7 @@ class AppUnificada(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("App Unificada PDF / Imágenes")
-        self.geometry("550x450")
+        self.geometry("550x500")  # Aumentar altura para acomodar más widgets
         self.resizable(False, False)
 
         # Variables de control
@@ -77,12 +78,12 @@ class AppUnificada(tk.Tk):
         self.options_specific_frame = tk.LabelFrame(self, text="Opciones adicionales")
         self.options_specific_frame.pack(fill="x", padx=10, pady=5)
 
-        # # 1) OCR (para PDF a Word)
-        # self.ocr_check = tk.Checkbutton(
-        #     self.options_specific_frame, text="Usar OCR (para PDF->Word)",
-        #     variable=self.ocr_var
-        # )
-        # self.ocr_check.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        # 1) OCR (para PDF a Word)
+        self.ocr_check = tk.Checkbutton(
+            self.options_specific_frame, text="Usar OCR (para PDF->Word)",
+            variable=self.ocr_var
+        )
+        self.ocr_check.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         # 2) DPI (para PDF->JPG)
         self.dpi_label = tk.Label(self.options_specific_frame, text="DPI (para PDF->JPG):")
@@ -124,11 +125,17 @@ class AppUnificada(tk.Tk):
                 if file:
                     self.file_path_var.set(file)
         else:
-            # En las otras opciones, seleccionamos un PDF
-            filetypes = [("Archivos PDF", "*.pdf")]
-            file = filedialog.askopenfilename(title="Selecciona un archivo PDF", filetypes=filetypes)
-            if file:
-                self.file_path_var.set(file)
+            # En las otras opciones, seleccionamos uno o más PDFs
+            if option == "merge_pdfs":  # Si añades la funcionalidad de merge_pdfs
+                files = filedialog.askopenfilenames(title="Selecciona archivos PDF", filetypes=[("Archivos PDF", "*.pdf")])
+                if files:
+                    # Concatenar rutas separadas por ";"
+                    self.file_path_var.set(";".join(files))
+            else:
+                filetypes = [("Archivos PDF", "*.pdf")]
+                file = filedialog.askopenfilename(title="Selecciona un archivo PDF", filetypes=filetypes)
+                if file:
+                    self.file_path_var.set(file)
 
     def browse_output(self):
         """Selecciona la ruta de salida, que puede ser archivo o carpeta."""
@@ -154,7 +161,7 @@ class AppUnificada(tk.Tk):
         option = self.option_var.get()
 
         # Ocultar todos los widgets específicos
-        # self.ocr_check.grid_remove()
+        self.ocr_check.grid_remove()
         self.dpi_label.grid_remove()
         self.dpi_entry.grid_remove()
         self.start_page_label.grid_remove()
@@ -163,8 +170,7 @@ class AppUnificada(tk.Tk):
         self.end_page_entry.grid_remove()
 
         if option == "pdf_to_word":
-        #     self.ocr_check.grid(row=0, column=0, padx=5, pady=5, sticky="w")
-            pass
+            self.ocr_check.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         elif option == "pdf_to_jpg":
             self.dpi_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
             self.dpi_entry.grid(row=1, column=1, padx=5, pady=5, sticky="w")
@@ -230,6 +236,16 @@ class AppUnificada(tk.Tk):
 
         except Exception as e:
             messagebox.showerror("Error", f"Ocurrió un error inesperado:\n{e}")
+
+def resource_path(relative_path):
+    """Obtiene la ruta absoluta del recurso, funciona para scripts y para PyInstaller."""
+    try:
+        # PyInstaller crea un atributo _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 if __name__ == "__main__":
     app = AppUnificada()

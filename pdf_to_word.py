@@ -2,6 +2,7 @@
 
 import os
 import io
+import sys
 from PIL import Image
 from docx import Document
 from docx.shared import Inches
@@ -9,8 +10,19 @@ import fitz  # PyMuPDF
 import pytesseract
 from tkinter import messagebox
 
+def resource_path(relative_path):
+    """Obtiene la ruta absoluta del recurso, funciona para scripts y para PyInstaller."""
+    try:
+        # PyInstaller crea un atributo _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # Configurar ruta a Tesseract si es necesario
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Asegúrate de incluir 'tesseract.exe' en la carpeta 'assets/' y de agregarla al ejecutable
+pytesseract.pytesseract.tesseract_cmd = resource_path(os.path.join('assets', 'tesseract.exe'))
 
 def pdf_to_word(pdf_path: str, output_folder: str, use_ocr: bool = False) -> None:
     """
@@ -36,7 +48,7 @@ def pdf_to_word(pdf_path: str, output_folder: str, use_ocr: bool = False) -> Non
             try:
                 pix = page.get_pixmap()
                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-                text = pytesseract.image_to_string(img)
+                text = pytesseract.image_to_string(img, lang='spa')
             except Exception as e:
                 messagebox.showerror("Error", f"OCR falló en la página {page_number + 1}.\n{e}")
 
