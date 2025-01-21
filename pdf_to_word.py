@@ -20,9 +20,9 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-# Configurar ruta a Tesseract si es necesario
-# Asegúrate de incluir 'tesseract.exe' en la carpeta 'assets/' y de agregarla al ejecutable
-pytesseract.pytesseract.tesseract_cmd = resource_path(os.path.join('assets', 'tesseract.exe'))
+# Configurar ruta a Tesseract
+pytesseract.pytesseract.tesseract_cmd = os.path.join("C:\\Program Files\\Tesseract-OCR", "tesseract.exe")
+# pytesseract.pytesseract.tesseract_cmd = resource_path(os.path.join('assets', 'tesseract.exe'))
 
 def pdf_to_word(pdf_path: str, output_folder: str, use_ocr: bool = False) -> None:
     """
